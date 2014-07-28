@@ -366,3 +366,16 @@ intValList: 550
 MinCost is: 450 $
 Corresponding persons which satisfy Min Cost are: kiran ,rekha ,abhi
 Minimum Time Taken is: 5 Hrs
+
+
+# csv File input:
+######################
+arun	3	400
+kiran	1	50
+ravi	4	210
+sathish	2	200
+manoj	5	50
+rekha	2	200
+abhi	3	300
+shinde	6	100
+Ayush	4	300
