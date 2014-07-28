@@ -1,0 +1,301 @@
+# Code: 
+
+import csv
+import itertools
+import re
+import string
+
+def readFromCSVFille():
+    PresentersNameList = []
+    presentersTimeList = []
+    presentersCostList = []
+
+    CSVList = []
+    print "Inside read from csv function"
+    with open("C:\\csvfile.csv", 'rb') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            CSVList.append(row)
+            
+            NameLst = []
+            timeLst = []
+            costLst = []
+
+            NameLst = row[0]
+            PresentersNameList.append(NameLst)
+            timeLst = row[1]
+            presentersTimeList.append(timeLst)
+            costLst = row[2]
+            presentersCostList.append(costLst)
+             
+        print"CSVList: "+str(CSVList)
+        print "Total Number of Presenters: "+str(len(CSVList))
+        print""
+        print"------------  Presenters Name , Time taken and Charges  ------------------------"
+        print"PresentersNameList: "+str(PresentersNameList)
+        print"presentersTimeList: "+str(presentersTimeList)
+        print"presentersCostList: "+str(presentersCostList)
+
+    f.close()
+    return PresentersNameList,presentersTimeList,presentersCostList
+   
+def GetUserInputAndCheckUserConferenceTime():
+    conferenceHours = raw_input("Enter the Number of Hours the Conference will held: ") 
+    nameList,timeList,costList =  readFromCSVFille()
+    
+    print"timeList: "+str(timeList)
+    CorrectTimeList = []
+    CorrectPersonList = []
+    CorrectCostList = []
+    for i in range (0,len(timeList)):
+        if int(timeList[i]) <= int(conferenceHours)/2:
+            CorrectTimeList.append(timeList[i])
+            CorrectPersonList.append(nameList[i])
+            CorrectCostList.append(costList[i])
+
+            print"CorrectTimeList: "+str(CorrectTimeList)
+            print"CorrectPersonList: "+str(CorrectPersonList)
+            print"CorrectCostList: "+str(CorrectCostList)
+
+        else: 
+            print"Timing which is more than Expection is: "+str(timeList[i])
+            print "The Deleted Timing item is: "+str(timeList[i])
+            print "The Deleted Person is: "+str(nameList[i])
+            
+    print"---------------------------- Eligible Persons and thier Corresponding Time -----------------------------------"
+    print"Suitable time for Presentation are: "+str(CorrectTimeList)
+    print"Eligible Person for Presentation are: "+str(CorrectPersonList)
+    print"Corresponding Cost for Presentation are: "+str(CorrectCostList)
+
+    
+    return CorrectPersonList,CorrectTimeList,CorrectCostList
+
+
+    
+# Multiply Time and Person to get thier correspondings
+def MultiplyTimeAndPerson():
+    CorrectPersonList, CorrectTimeList, CorrectCostList = GetUserInputAndCheckUserConferenceTime()
+    MultipliedList = []
+    
+    for i in range (0,len(CorrectTimeList)):
+        Multiplied = str(CorrectTimeList[i])+str(CorrectPersonList[i])
+        Multi = str(Multiplied)+str(CorrectCostList[i])
+        MultipliedList.append(Multi)
+        print"-----------------------------------------------------------"
+    print"MultipliedList: "+str(MultipliedList)
+
+    return MultipliedList
+
+# To Calculate the number of Combination for Time taken by three person
+def NoOfCombination(): 
+    multipliedList = MultiplyTimeAndPerson()
+
+    print"timeList:" +str(multipliedList)
+    print""
+    abc = set(itertools.combinations(multipliedList,3))
+    print"-------------------------------  Combination who are eligible for Presentation:----------------------------------"
+    print"-----------------------------------------------------------------------------------------------------------------"
+    print"set(itertools.combinations(timeList,3)): "+str(list(abc))
+    print"Total Number of possibility for Presentation: "+str(len(abc))
+    print list(abc)
+
+    print""
+    print"---------------------- convert Tuple to List ---------------------------------"
+    print"------------------------------------------------------------------------------"
+    convertTupleToList = []
+    lstAb = list(abc)
+    for i in range(0,len(list(abc))):
+        lst = list(lstAb[i])
+        convertTupleToList.append(lst)
+    print"convertTupleToList: "+str(convertTupleToList)
+
+    return convertTupleToList
+    
+
+def GetLastIntegerFromString(stringVal,slicedStr):
+    string = stringVal
+    # it will search the integer
+    m = re.search(r'\d+$', string)
+    # Returns the integer
+    intVal = m.group()
+
+    slicedStrLength = len(slicedStr)
+    intValLength = len(intVal)
+    # Substracting Length to get the String
+    subtractedLength = slicedStrLength-intValLength
+
+    # This is Actual String Or Name I am extracting
+    onlyString = slicedStr[0:subtractedLength]
+    print"Correct Name String: "+str(onlyString)
+
+    return intVal,onlyString
+
+
+
+def FindPresentersNameListTimeListAndCostList():
+    ListVal = NoOfCombination()
+    FinalTimeCalList = []
+    FinalCostCalList = []
+    for j in range(0,len(ListVal)):
+        TimeCal = int(ListVal[j][0][0])+int(ListVal[j][1][0])+int(ListVal[j][2][0])
+        FinalTimeCalList.append(TimeCal)
+    print"-----------------------------Sum of Time taken by all Presenters----------------------------"
+    print "-----------FinalTimeCalList: -----------"+str(FinalTimeCalList)
+    intValList = []
+    intVal = []
+    count = 0
+    for k in range(0,len(ListVal)):
+        for j in range (0,3):
+            string = ListVal[k][j]
+            slicedStr = string[1:]
+
+            intVal,actualStr = GetLastIntegerFromString(string,slicedStr)
+            if j == 0:
+                val1 = intVal
+                person1 = actualStr
+            if j == 1:
+                val2 = intVal
+                person2 = actualStr
+
+            if j == 2:
+                val3 = intVal
+                person3 = actualStr
+
+        intValList = int(val1)+int(val2)+int(val3)
+        correspondingPerson = person1+" ,"+person2+" ,"+person3
+        print"intValList: "+str(intValList)
+        FinalCostCalList.append(intValList)
+        MinCost = min(FinalCostCalList)
+    print"-------------Sum of the Charges paid by organizer :---------------- "+str(FinalCostCalList) 
+    print"MinCost is: "+str(MinCost) +" $"
+    print"Corresponding persons which satisfy Min Cost are: "+str(correspondingPerson)
+    print "Minimum Time Taken is: "+str(min(FinalTimeCalList)) +" Hrs"
+
+
+FindPresentersNameListTimeListAndCostList()
+
+# Result or Report
+
+Enter the Number of Hours the Conference will held: 7
+Inside read from csv function
+CSVList: [['arun', '3', '400'], ['kiran', '1', '50'], ['ravi', '4', '210'], ['sathish', '2', '200'], ['manoj', '5', '50'], ['rekha', '2', '200'], ['abhi', '3', '300'], ['shinde', '6', '100'], ['Ayush', '4', '300']]
+Total Number of Presenters: 9
+
+------------  Presenters Name , Time taken and Charges  ------------------------
+PresentersNameList: ['arun', 'kiran', 'ravi', 'sathish', 'manoj', 'rekha', 'abhi', 'shinde', 'Ayush']
+presentersTimeList: ['3', '1', '4', '2', '5', '2', '3', '6', '4']
+presentersCostList: ['400', '50', '210', '200', '50', '200', '300', '100', '300']
+timeList: ['3', '1', '4', '2', '5', '2', '3', '6', '4']
+CorrectTimeList: ['3']
+CorrectPersonList: ['arun']
+CorrectCostList: ['400']
+CorrectTimeList: ['3', '1']
+CorrectPersonList: ['arun', 'kiran']
+CorrectCostList: ['400', '50']
+Timing which is more than Expection is: 4
+The Deleted Timing item is: 4
+The Deleted Person is: ravi
+CorrectTimeList: ['3', '1', '2']
+CorrectPersonList: ['arun', 'kiran', 'sathish']
+CorrectCostList: ['400', '50', '200']
+Timing which is more than Expection is: 5
+The Deleted Timing item is: 5
+The Deleted Person is: manoj
+CorrectTimeList: ['3', '1', '2', '2']
+CorrectPersonList: ['arun', 'kiran', 'sathish', 'rekha']
+CorrectCostList: ['400', '50', '200', '200']
+CorrectTimeList: ['3', '1', '2', '2', '3']
+CorrectPersonList: ['arun', 'kiran', 'sathish', 'rekha', 'abhi']
+CorrectCostList: ['400', '50', '200', '200', '300']
+Timing which is more than Expection is: 6
+The Deleted Timing item is: 6
+The Deleted Person is: shinde
+Timing which is more than Expection is: 4
+The Deleted Timing item is: 4
+The Deleted Person is: Ayush
+---------------------------- Eligible Persons and thier Corresponding Time -----------------------------------
+Suitable time for Presentation are: ['3', '1', '2', '2', '3']
+Eligible Person for Presentation are: ['arun', 'kiran', 'sathish', 'rekha', 'abhi']
+Corresponding Cost for Presentation are: ['400', '50', '200', '200', '300']
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+-----------------------------------------------------------
+MultipliedList: ['3arun400', '1kiran50', '2sathish200', '2rekha200', '3abhi300']
+timeList:['3arun400', '1kiran50', '2sathish200', '2rekha200', '3abhi300']
+
+-------------------------------  Combination who are eligible for Presentation:----------------------------------
+-----------------------------------------------------------------------------------------------------------------
+set(itertools.combinations(timeList,3)): [('1kiran50', '2rekha200', '3abhi300'), ('3arun400', '1kiran50', '3abhi300'), ('3arun400', '1kiran50', '2rekha200'), ('3arun400', '2sathish200', '3abhi300'), ('3arun400', '2sathish200', '2rekha200'), ('3arun400', '1kiran50', '2sathish200'), ('3arun400', '2rekha200', '3abhi300'), ('2sathish200', '2rekha200', '3abhi300'), ('1kiran50', '2sathish200', '3abhi300'), ('1kiran50', '2sathish200', '2rekha200')]
+Total Number of possibility for Presentation: 10
+[('1kiran50', '2rekha200', '3abhi300'), ('3arun400', '1kiran50', '3abhi300'), ('3arun400', '1kiran50', '2rekha200'), ('3arun400', '2sathish200', '3abhi300'), ('3arun400', '2sathish200', '2rekha200'), ('3arun400', '1kiran50', '2sathish200'), ('3arun400', '2rekha200', '3abhi300'), ('2sathish200', '2rekha200', '3abhi300'), ('1kiran50', '2sathish200', '3abhi300'), ('1kiran50', '2sathish200', '2rekha200')]
+
+---------------------- convert Tuple to List ---------------------------------
+------------------------------------------------------------------------------
+convertTupleToList: [['1kiran50', '2rekha200', '3abhi300'], ['3arun400', '1kiran50', '3abhi300'], ['3arun400', '1kiran50', '2rekha200'], ['3arun400', '2sathish200', '3abhi300'], ['3arun400', '2sathish200', '2rekha200'], ['3arun400', '1kiran50', '2sathish200'], ['3arun400', '2rekha200', '3abhi300'], ['2sathish200', '2rekha200', '3abhi300'], ['1kiran50', '2sathish200', '3abhi300'], ['1kiran50', '2sathish200', '2rekha200']]
+-----------------------------Sum of Time taken by all Presenters----------------------------
+-----------FinalTimeCalList: -----------[6, 7, 6, 8, 7, 6, 8, 7, 6, 5]
+Correct Name String: kiran
+Correct Name String: rekha
+Correct Name String: abhi
+intValList: 550
+Correct Name String: arun
+Correct Name String: kiran
+Correct Name String: abhi
+intValList: 750
+Correct Name String: arun
+Correct Name String: kiran
+Correct Name String: rekha
+intValList: 650
+Correct Name String: arun
+Correct Name String: sathish
+Correct Name String: abhi
+intValList: 900
+Correct Name String: arun
+Correct Name String: sathish
+Correct Name String: rekha
+intValList: 800
+Correct Name String: arun
+Correct Name String: kiran
+Correct Name String: sathish
+intValList: 650
+Correct Name String: arun
+Correct Name String: rekha
+Correct Name String: abhi
+intValList: 900
+Correct Name String: sathish
+Correct Name String: rekha
+Correct Name String: abhi
+intValList: 700
+Correct Name String: kiran
+Correct Name String: sathish
+Correct Name String: abhi
+intValList: 550
+Correct Name String: kiran
+Correct Name String: sathish
+Correct Name String: rekha
+intValList: 450
+-------------Sum of the Charges paid by organizer :---------------- [550, 750, 650, 900, 800, 650, 900, 700, 550, 450]
+MinCost is: 450 $
+Corresponding persons which satisfy Min Cost are: kiran ,sathish ,rekha
+Minimum Time Taken is: 5 Hrs
+
+
+# csv File contents
+arun	3	400
+kiran	1	50
+ravi	4	210
+sathish	2	200
+manoj	5	50
+rekha	2	200
+abhi	3	300
+shinde	6	100
+Ayush	4	300
+
+
+
+
+
+
